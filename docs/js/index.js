@@ -18,15 +18,25 @@ async function showDca() {
 
     const settings = getSettings()
 
-    const results = await calculateDca(
-        settings.symbol,
-        settings.startDate,
-        settings.endDate,
-        settings.budget,
-        settings.sellProfit,
-        settings.buyFall,
-        settings.margin
-    )
+    const results = settings.direction === "Long"
+        ? await calculateDcaLong(
+            settings.symbol,
+            settings.startDate,
+            settings.endDate,
+            settings.budget,
+            settings.sellProfit,
+            settings.buyFall,
+            settings.margin
+        )
+        : await calculateDcaShort(
+            settings.symbol,
+            settings.startDate,
+            settings.endDate,
+            settings.budget,
+            settings.sellProfit,
+            settings.buyFall,
+            settings.margin
+        )
 
     showDcaTotal(results.total)
     showDcaResult(results.results)
