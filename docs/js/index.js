@@ -48,7 +48,7 @@ function showDcaTotal(total) {
     html += getRow("Максимальная просадка", total.maxFall, "%")
     html += getRow("Максимальное кол-во покупок", total.maxBudgetsCount)
     html += getRow("Ориентировочный бюджет", total.needTotalBudget, "$")
-    html += getRow("Годовая доходность", total.percent, "%")
+    html += getRow("ROI", total.percent, "%")
 
     setHtml("dca-total", html)
 }
