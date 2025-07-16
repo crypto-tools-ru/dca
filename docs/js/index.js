@@ -13,6 +13,7 @@ async function dca() {
 }
 
 async function showDca() {
+    setHtml("dca-total", "")
     setHtml("dca-result", "")
 
     const settings = getSettings()
@@ -23,14 +24,36 @@ async function showDca() {
         settings.endDate,
         settings.budget,
         settings.sellProfit,
-        settings.buyFall
+        settings.buyFall,
+        settings.margin
     )
 
-    console.table(results)
-    showDcaResult(results)
+    showDcaTotal(results.total)
+    showDcaResult(results.results)
 }
 
-function showDcaResult(results, profit) {
+function showDcaTotal(total) {
+    let html = ""
+
+    const getRow = (title, value, postfix) => {
+        return `
+        <div class="row">
+            <div class="col-md-3">${title}</div>
+            <div class="col-md-9"><b>${value}${postfix || ""}</b></div>
+        </div>
+    `
+    }
+
+    html += getRow("Профит", total.profit, "$")
+    html += getRow("Максимальная просадка", total.maxFall, "%")
+    html += getRow("Максимальное кол-во покупок", total.maxBudgetsCount)
+    html += getRow("Ориентировочный бюджет", total.needTotalBudget, "$")
+    html += getRow("Годовая доходность", total.percent, "%")
+
+    setHtml("dca-total", html)
+}
+
+function showDcaResult(results) {
     let html = `
         <table class="table">
             <thead>
@@ -45,18 +68,6 @@ function showDcaResult(results, profit) {
                 </tr>
             </thead>
             <tbody>
-    `
-
-    html += `
-        <tr>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
-            <th>${sum(results, x => x.profit).toFixed(2)}$</td>
-        </tr>
     `
 
     results.forEach(x => html += `

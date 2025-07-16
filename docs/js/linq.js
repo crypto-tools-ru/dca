@@ -25,3 +25,27 @@ function sum(array, get) {
 
     return result
 }
+
+function min(array, get) {
+    let result = get(array[0])
+
+    for (let i = 1; i < array.length; i++) {
+        if (get(array[i]) < result) {
+            result = get(array[i])
+        }
+    }
+
+    return result
+}
+
+function max(array, get) {
+    let result = get(array[0])
+
+    for (let i = 1; i < array.length; i++) {
+        if (get(array[i]) > result) {
+            result = get(array[i])
+        }
+    }
+
+    return result
+}

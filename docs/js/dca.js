@@ -1,4 +1,4 @@
-async function calculateDca(symbol, start, end, budget, sellProfit, buyFall) {
+async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, margin) {
     const results = []
 
     const candles = await getCandles(symbol, "D", start, end)
@@ -32,7 +32,25 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall) {
         results.push(notBuy(candle, lastResult))
     }
 
-    return results
+    const total = getTotal(results, budget, margin)
+
+    return { results, total }
+}
+
+function getTotal(results, budget, margin) {
+    const profit = round(sum(results, x => x.profit))
+    const maxFall = round(min(results, x => x.fall)) 
+    const maxBudgetsCount =  round(max(results, x => x.money) / budget)
+    const needTotalBudget = round(max(results, x => x.money) / margin)
+    const percent = round((profit / needTotalBudget) * 100)
+
+    return {
+        profit,
+        maxFall,
+        maxBudgetsCount,
+        needTotalBudget,
+        percent,
+    }
 }
 
 function buy(candle, lastMoney, lastCoins, budget) {
