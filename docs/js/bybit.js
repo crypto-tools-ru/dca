@@ -1,5 +1,20 @@
 const category = "spot"
 
+async function getSymbolInfo(symbol) {
+    const response = await fetch(`https://api.bybit.com/v5/market/instruments-info?category=${category}`
+        + `&symbol=${symbol}`
+        + "&limit=1000"
+    )
+
+    const json = await ensureResponseOkAndGetJson(response)
+    
+    return json.result.list.map(x => ({
+        symbol: x.symbol,
+        countStep: parseFloat(x.lotSizeFilter.basePrecision),
+        priceStep: parseFloat(x.priceFilter.tickSize),
+    }))[0]
+}
+
 async function getCandles(symbol, interval, start, end) {
     const limit = 1000
     const maxPages = 300

@@ -6,18 +6,19 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, mar
     const results = []
 
     const candles = await getCandles(symbol, "D", start, end)
+    const symbolInfo = await getSymbolInfo(symbol)
 
     for (let i = candles.length - 1; i >= 0; i--) {
         const candle = candles[i]
 
         if (!results.length) {
-            results.push(add(candle, 0, 0, budget, calculateProfit))
+            results.push(add(candle, 0, 0, budget, calculateProfit, symbolInfo))
             continue
         }
 
         const lastResult = results[results.length - 1]
         if (!lastResult.money) {
-            results.push(add(candle, 0, 0, budget, calculateProfit))
+            results.push(add(candle, 0, 0, budget, calculateProfit, symbolInfo))
             continue
         }
 
@@ -29,7 +30,7 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, mar
         }
 
         if (profit < buyFall) {
-            results.push(add(candle, lastResult.money, lastResult.coins, budget, calculateProfit))
+            results.push(add(candle, lastResult.money, lastResult.coins, budget, calculateProfit, symbolInfo))
             continue
         }
 
@@ -44,7 +45,7 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, mar
 function getDcaTotal(results, budget, margin) {
     const profit = round(sum(results, x => x.profit))
     const maxFall = round(min(results, x => x.fall))
-    const maxBudgetsCount = round(max(results, x => x.money) / budget)
+    const maxBudgetsCount = round(max(results, x => x.money) / budget, 1)
     const needTotalBudget = round(max(results, x => x.money) / margin)
     const percent = round((profit / needTotalBudget) * 100)
 
@@ -57,12 +58,12 @@ function getDcaTotal(results, budget, margin) {
     }
 }
 
-function add(candle, lastMoney, lastCoins, budget, calculateProfit) {
+function add(candle, lastMoney, lastCoins, budget, calculateProfit, symbolInfo) {
     const date = formatDate(candle.date)
     const price = candle.close
-    const money = lastMoney + budget
-    const coins = lastCoins + budget / price
-    const avgPrice = round(money / coins)
+    const money = round(lastMoney + round(budget / price, symbolInfo.countStep) * price)
+    const coins = round(lastCoins + budget / price, symbolInfo.countStep)
+    const avgPrice = round(money / coins, symbolInfo.priceStep)
     const fall = round(calculateProfit(price, avgPrice) * 100)
     const profit = 0
 
@@ -102,6 +103,8 @@ function formatDate(time) {
     return `${format(date.getFullYear())}-${format(date.getMonth() + 1)}-${format(date.getDate())}`
 }
 
-function round(value, digits = 2) {
-    return parseFloat(value.toFixed(digits))
+function round(value, step = 0.01) {
+    return parseFloat(
+        (value - value % step).toFixed(10)
+    )
 }
