@@ -21,10 +21,14 @@ async function calculateProfits(symbols: string[], start: number): Promise<Profi
     let profits: Profit[] = []
 
     await linq.forEach(symbols, async symbol => {
-        const coins = assets.find(x => x.symbol === symbol)!.size
+        const coins = assets.find(x => x.symbol === symbol)?.size || 0
+        if (!coins) {
+            console.log(`Assets not found for ${symbol}. Skip calculate profit`)
+        }
+
         const money = moneys.get(symbol)!
         const price = await bybit.getPrice(symbol)
-        
+
         const avgPrice = money / coins
         const profit = round((price - avgPrice) / avgPrice * 100)
 
