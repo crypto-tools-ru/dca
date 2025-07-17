@@ -13,6 +13,11 @@ export interface Asset {
     size: number,
 }
 
+interface Trade {
+    symbol: string,
+    money: number,
+}
+
 const category = "spot"
 const hourMs = 60 * 60 * 1000
 
@@ -99,6 +104,23 @@ async function getAssets(): Promise<Asset[]> {
         }))
 }
 
+async function getTrades(start: number): Promise<Trade[]> {
+    var response = await client!.getExecutionList({
+        category,
+        startTime: start,
+    })
+
+    ensureResponseOk(response)
+
+    return response
+        .result
+        .list
+        .map(x => ({
+            symbol: x.symbol,
+            money: parseFloat(x.execValue),
+        }))
+}
+
 function ensureResponseOk<T>(response: APIResponseV3WithTime<T>) {
     if (response.retCode !== 0) {
         console.log(response)
@@ -114,4 +136,5 @@ export const bybit = {
     init,
     getPrice,
     getAssets,
+    getTrades,
 }

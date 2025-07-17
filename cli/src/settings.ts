@@ -1,9 +1,14 @@
 require("dotenv").config()
 
+export interface Symbol {
+    symbol: string,
+    start: number,
+}
+
 export interface Settings {
     strategy: string,
 
-    symbols: string[],
+    symbols: Symbol[],
 
     trackPriceStartDate: number,
     trackPriceIntervalHours: number,
@@ -18,7 +23,13 @@ function get(): Settings {
     return {
         strategy: process.env.strategy!,
 
-        symbols: process.env.symbols!.split(","),
+        symbols: process.env.symbols!
+            .split(";")
+            .map(x => x.split(","))
+            .map(x => ({
+                symbol: x[0] + "USDT",
+                start: Date.parse(x[1]),
+            })),
 
         trackPriceStartDate: Date.parse(process.env.trackPriceStartDate!),
         trackPriceIntervalHours: parseInt(process.env.trackPriceIntervalHours!),

@@ -7,7 +7,7 @@ import { linq } from "./linq"
 async function trackPrice(settings: Settings) {
     const innerTrackPrice = async () => {
         try {
-            const profits = await pricesCalculator.calculateProfits(settings.symbols, settings.trackPriceStartDate)
+            const profits = await pricesCalculator.calculateProfits(settings.symbols)
 
             console.log("*****")
             profits.profits.forEach(x => console.log(x.symbol, "-", "profit:", x.profit, "%,"))
@@ -24,7 +24,7 @@ async function trackPrice(settings: Settings) {
     }
 
     const intervalMs = settings.trackPriceIntervalHours * 60 * 60 * 1000
-    setInterval(() => innerTrackPrice(), intervalMs)
+    intervalMs && setInterval(() => innerTrackPrice(), intervalMs)
     await innerTrackPrice()
 }
 
