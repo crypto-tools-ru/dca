@@ -11,7 +11,7 @@ export interface Settings {
     symbols: Symbol[],
 
     trackPriceStartDate: number,
-    trackPriceIntervalHours: number,
+    trackPriceIntervalHours: number[],
 
     bybitApiKeyPublic: string,
     bybitApiKeyPrivate: string,
@@ -32,7 +32,10 @@ function get(): Settings {
             })),
 
         trackPriceStartDate: Date.parse(process.env.trackPriceStartDate!),
-        trackPriceIntervalHours: parseInt(process.env.trackPriceIntervalHours!),
+        trackPriceIntervalHours: process.env.trackPriceIntervalHours!
+            .split(",")
+            .filter(x => !!x)
+            .map(parseInt),
 
         bybitApiKeyPublic: process.env.bybitApiKeyPublic!,
         bybitApiKeyPrivate: process.env.bybitApiKeyPrivate!,
