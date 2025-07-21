@@ -36,7 +36,7 @@ function get(): Settings {
             .split(",")
             .map(x => x.trim())
             .filter(x => !!x)
-            .map(parseInt),
+            .map(x => parseInt(x)),
 
         bybitApiKeyPublic: process.env.bybitApiKeyPublic!,
         bybitApiKeyPrivate: process.env.bybitApiKeyPrivate!,
