@@ -9,25 +9,32 @@ async function work(action: () => Promise<void>, ...times: number[]) {
     let lastTime = 0
     const getTime = (hour: number) => new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), hour).getTime()
 
-    setInterval(() => {
-        const nextTime = Enumerable.from(times)
-            .select(getTime)
-            .where(x => x > lastTime)
-            .orderBy(x => x)
-            .firstOrDefault()
+    const check = async () => {
+        {
+            const nextTime = Enumerable.from(times)
+                .select(getTime)
+                .where(x => x > lastTime)
+                .orderBy(x => x)
+                .firstOrDefault()
 
-        if (!nextTime) {
-            return
+            if (!nextTime) {
+                console.log(new Date(), "Not found time to work", lastTime, Enumerable.from(times).select(getTime).toArray())
+                return
+            }
+
+            if (new Date().getTime() < nextTime) {
+                console.log(new Date(), "Time is not for work", new Date().getTime(), lastTime, Enumerable.from(times).select(getTime).toArray())
+                return
+            }
+
+            console.log(new Date(), "Execute action", lastTime, nextTime)
+            lastTime = nextTime
+            await action()
         }
+    }
 
-        if (new Date().getTime() < nextTime) {
-            return
-        }
-
-        console.log(new Date(), "Execute action", lastTime, nextTime)
-        lastTime = nextTime
-        action()
-    }, 5 * 1000)
+    setInterval(() => check(), 5 * 60 * 1000)
+    await check()
 }
 
 export const scheduler = {
