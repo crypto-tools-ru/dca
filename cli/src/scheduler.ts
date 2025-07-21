@@ -7,7 +7,10 @@ async function work(action: () => Promise<void>, ...times: number[]) {
     }
 
     let lastTime = 0
-    const getTime = (hour: number) => new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), hour).getTime()
+    const getTime = (hour: number) => {
+        const now = new Date()
+        return now.getFullYear() * 1000000 + now.getMonth() * 10000 + now.getDate() * 100 + hour
+    }
 
     const check = async () => {
         {
