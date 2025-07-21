@@ -34,6 +34,7 @@ function get(): Settings {
         trackPriceStartDate: Date.parse(process.env.trackPriceStartDate!),
         trackPriceIntervalHours: process.env.trackPriceIntervalHours!
             .split(",")
+            .map(x => x.trim())
             .filter(x => !!x)
             .map(parseInt),
 
