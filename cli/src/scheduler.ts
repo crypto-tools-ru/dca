@@ -15,7 +15,7 @@ async function work(action: () => Promise<void>, ...times: number[]) {
     const check = async () => {
         {
             const nextTime = Enumerable.from(times)
-                .select(getTime)
+                .select(x => getTime(x))
                 .where(x => x > lastTime)
                 .orderBy(x => x)
                 .firstOrDefault()
