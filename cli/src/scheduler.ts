@@ -2,9 +2,12 @@ import Enumerable from "linq"
 
 async function work(action: () => Promise<void>, ...times: number[]) {
     if (!times.length) {
+        log("Times not found. Process only once", times)
         await action()
         return
     }
+
+    log("Start process by times", times)
 
     let lastTime = 0
     const getTime = (hour: number) => {
@@ -14,23 +17,22 @@ async function work(action: () => Promise<void>, ...times: number[]) {
 
     const check = async () => {
         {
+            const now = getTime(new Date().getHours())
             const nextTime = Enumerable.from(times)
                 .select(x => getTime(x))
-                .where(x => x > lastTime)
-                .orderBy(x => x)
-                .firstOrDefault()
+                .singleOrDefault(x => x > lastTime && x === now)
 
             if (!nextTime) {
-                console.log(new Date(), "Not found time to work", lastTime, Enumerable.from(times).select(getTime).toArray())
+                log(
+                    "Not found time to work",
+                    lastTime,
+                    now,
+                    Enumerable.from(times).select(x => getTime(x)).toArray()
+                )
                 return
             }
 
-            if (new Date().getTime() < nextTime) {
-                console.log(new Date(), "Time is not for work", new Date().getTime(), lastTime, Enumerable.from(times).select(getTime).toArray())
-                return
-            }
-
-            console.log(new Date(), "Execute action", lastTime, nextTime)
+            log("Execute action", lastTime, now, nextTime)
             lastTime = nextTime
             await action()
         }
@@ -38,6 +40,10 @@ async function work(action: () => Promise<void>, ...times: number[]) {
 
     setInterval(() => check(), 5 * 60 * 1000)
     await check()
+}
+
+function log(...parameters: any[]) {
+    console.log(new Date(), "Scheduler:", ...parameters)
 }
 
 export const scheduler = {
