@@ -26,6 +26,10 @@ async function calculateProfits(symbols: Symbol[]): Promise<Profits> {
         }
 
         const trades = await bybit.getTrades(start)
+        if (!trades.length) {
+            console.log(`Not found trades for ${symbol}. Skip calculate profit`)
+        }
+
         const price = await bybit.getPrice(symbol)
 
         const money = Enumerable.from(trades).sum(x => x.money)
