@@ -26,7 +26,8 @@ async function showDca() {
         settings.sellProfit,
         settings.buyFall,
         settings.margin,
-        settings.direction
+        settings.direction,
+        settings.maxCount
     )
 
     showDcaTotal(results.total)

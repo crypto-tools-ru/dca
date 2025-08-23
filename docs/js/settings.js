@@ -8,5 +8,6 @@ function getSettings() {
         sellProfit: parseInt(document.getElementById("sellProfit").value),
         buyFall: parseInt(document.getElementById("buyFall").value),
         margin: parseInt(document.getElementById("margin").value),
+        maxCount: parseInt(document.getElementById("maxCount").value),
     }
 }

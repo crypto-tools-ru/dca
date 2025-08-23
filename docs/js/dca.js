@@ -1,4 +1,4 @@
-async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, margin, direction) {
+async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, margin, direction, maxCount) {
     const calculateProfit = direction === "Long"
         ? (end, start) => (end - start) / start
         : (end, start) => (start - end) / start
@@ -7,18 +7,21 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, mar
 
     const candles = await getCandles(symbol, "D", start, end)
     const symbolInfo = await getSymbolInfo(symbol)
+    let count = 0
 
     for (let i = candles.length - 1; i >= 0; i--) {
         const candle = candles[i]
 
         if (!results.length) {
             results.push(add(candle, 0, 0, budget, calculateProfit, symbolInfo))
+            count++
             continue
         }
 
         const lastResult = results[results.length - 1]
         if (!lastResult.money) {
             results.push(add(candle, 0, 0, budget, calculateProfit, symbolInfo))
+            count++
             continue
         }
 
@@ -26,11 +29,13 @@ async function calculateDca(symbol, start, end, budget, sellProfit, buyFall, mar
 
         if (profit > sellProfit) {
             results.push(close(candle, lastResult, calculateProfit))
+            count = 0
             continue
         }
 
-        if (profit < buyFall) {
+        if (profit < buyFall && count < maxCount) {
             results.push(add(candle, lastResult.money, lastResult.coins, budget, calculateProfit, symbolInfo))
+            count++
             continue
         }
 
