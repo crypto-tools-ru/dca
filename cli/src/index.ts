@@ -11,12 +11,9 @@ async function trackPrice(settings: Settings) {
             const profits = await pricesCalculator.calculateProfits(settings.symbols)
 
             console.log("*****")
-            profits.profits.forEach(x => console.log(x.symbol, "-", "profit:", x.profit, "%,"))
+            profits.forEach(x => console.log(x.symbol, "-", "profit:", x.profit, "%,"))
 
-            console.log("*****")
-            console.log("Total profit:", profits.profit, "%,")
-
-            await linq.forEach(profits.profits, async profit => {
+            await linq.forEach(profits, async profit => {
                 await telegram.sendMessage(`${profit.symbol} - current profit ${profit.profit}%`)
             })
         } catch (ex) {

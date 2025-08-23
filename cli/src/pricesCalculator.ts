@@ -8,12 +8,7 @@ interface Profit {
     profit: number,
 }
 
-interface Profits {
-    profits: Profit[],
-    profit: number,
-}
-
-async function calculateProfits(symbols: Symbol[]): Promise<Profits> {
+async function calculateProfits(symbols: Symbol[]): Promise<Profit[]> {
     console.log(new Date(), "Start calculate profits")
 
     const assets = await bybit.getAssets()
@@ -23,11 +18,13 @@ async function calculateProfits(symbols: Symbol[]): Promise<Profits> {
         const coins = assets.find(x => x.symbol === symbol)?.size || 0
         if (!coins) {
             console.log(`Assets not found for ${symbol}. Skip calculate profit`)
+            return
         }
 
         const trades = await bybit.getTrades(start)
         if (!trades.length) {
             console.log(`Not found trades for ${symbol}. Skip calculate profit`)
+            return
         }
 
         const price = await bybit.getPrice(symbol)
@@ -39,10 +36,7 @@ async function calculateProfits(symbols: Symbol[]): Promise<Profits> {
         profits.push({ symbol, profit })
     })
 
-    profits = Enumerable.from(profits).orderByDescending(x => x.profit).toArray()
-    const profit = round(Enumerable.from(profits).average(x => x.profit))
-
-    return { profits, profit }
+    return profits
 }
 
 function round(value: number): number {
