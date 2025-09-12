@@ -108,9 +108,8 @@ async function getAssets(): Promise<Asset[]> {
 
 async function getTrades(start: number): Promise<Trade[]> {
     const now = new Date().getTime()
-    let date = start
 
-    const get = async (): Promise<Trade[]> => {
+    const get = async (date: number): Promise<Trade[]> => {
         var response = await client!.getExecutionList({
             category,
             startTime: date,
@@ -129,14 +128,21 @@ async function getTrades(start: number): Promise<Trade[]> {
     }
 
     const trades: Trade[] = []
-    while (date < now) {
-        trades.push(...await get())
-       
-        date += 5 * dayMs
+    for (let i = 0; i < 100; i++) {
+        const date = start + i * 5 * dayMs
+        if (date > now) {
+            break
+        }
+
+        const newTrades = await get()
+        trades.push(...newTrades)
+
         await sleep(100)
     }
 
-    return trades
+    return Enumerable.from(trades)
+        .distinct(x => x.time)
+        .toArray()
 }
 
 function ensureResponseOk<T>(response: APIResponseV3WithTime<T>) {
