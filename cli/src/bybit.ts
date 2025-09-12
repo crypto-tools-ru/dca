@@ -16,10 +16,12 @@ export interface Asset {
 interface Trade {
     symbol: string,
     money: number,
+    time: number,
 }
 
 const category = "spot"
 const hourMs = 60 * 60 * 1000
+const dayMs = 24 * hourMs
 
 let client: RestClientV5 | null = null
 
@@ -105,20 +107,37 @@ async function getAssets(): Promise<Asset[]> {
 }
 
 async function getTrades(start: number): Promise<Trade[]> {
-    var response = await client!.getExecutionList({
-        category,
-        startTime: start,
-    })
+    const now = new Date().getTime()
+    let date = start
 
-    ensureResponseOk(response)
+    const innerGetTrades = async (): Promise<Trade[]> => {
+        var response = await client!.getExecutionList({
+            category,
+            startTime: date,
+        })
 
-    return response
-        .result
-        .list
-        .map(x => ({
-            symbol: x.symbol,
-            money: parseFloat(x.execValue),
-        }))
+        ensureResponseOk(response)
+
+        return response
+            .result
+            .list
+            .map(x => ({
+                symbol: x.symbol,
+                money: parseFloat(x.execValue),
+                time: parseFloat(x.execTime),
+            }))
+    }
+
+    const trades: Trade[] = []
+    while (date < now) {
+        trades.push(
+            ...await innerGetTrades()
+        )
+
+        date += 5 * dayMs
+    }
+
+    return trades
 }
 
 function ensureResponseOk<T>(response: APIResponseV3WithTime<T>) {
