@@ -110,7 +110,7 @@ async function getTrades(start: number): Promise<Trade[]> {
     const now = new Date().getTime()
     let date = start
 
-    const innerGetTrades = async (): Promise<Trade[]> => {
+    const get = async (): Promise<Trade[]> => {
         var response = await client!.getExecutionList({
             category,
             startTime: date,
@@ -130,11 +130,10 @@ async function getTrades(start: number): Promise<Trade[]> {
 
     const trades: Trade[] = []
     while (date < now) {
-        trades.push(
-            ...await innerGetTrades()
-        )
-
+        trades.push(...await get())
+       
         date += 5 * dayMs
+        await sleep(100)
     }
 
     return trades
