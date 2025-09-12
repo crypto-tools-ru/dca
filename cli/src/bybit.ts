@@ -107,8 +107,6 @@ async function getAssets(): Promise<Asset[]> {
 }
 
 async function getTrades(start: number): Promise<Trade[]> {
-    const now = new Date().getTime()
-
     const get = async (date: number): Promise<Trade[]> => {
         var response = await client!.getExecutionList({
             category,
@@ -127,14 +125,16 @@ async function getTrades(start: number): Promise<Trade[]> {
             }))
     }
 
+    const now = new Date().getTime()
     const trades: Trade[] = []
+
     for (let i = 0; i < 100; i++) {
         const date = start + i * 5 * dayMs
         if (date > now) {
             break
         }
 
-        const newTrades = await get()
+        const newTrades = await get(date)
         trades.push(...newTrades)
 
         await sleep(100)
