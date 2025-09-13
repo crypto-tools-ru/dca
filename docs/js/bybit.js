@@ -37,6 +37,9 @@ async function getCandles(symbol, interval, start, end) {
         return json.result.list.map(x => ({
             symbol,
             date: parseInt(x[0]),
+            open: parseFloat(x[1]),
+            high: parseFloat(x[2]),
+            low: parseFloat(x[3]),
             close: parseFloat(x[4]),
         }))
     }

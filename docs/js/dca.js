@@ -66,10 +66,11 @@ function getDcaTotal(results, budget, margin) {
 function add(candle, lastMoney, lastCoins, budget, calculateProfit, symbolInfo) {
     const date = formatDate(candle.date)
     const price = candle.close
+    const lowPrice = candle.low
     const money = round(lastMoney + round(budget / price, symbolInfo.countStep) * price)
     const coins = round(lastCoins + budget / price, symbolInfo.countStep)
     const avgPrice = round(money / coins, symbolInfo.priceStep)
-    const fall = round(calculateProfit(price, avgPrice) * 100)
+    const fall = round(calculateProfit(lowPrice, avgPrice) * 100)
     const profit = 0
 
     return { date, price, money, coins, avgPrice, fall, profit }
@@ -78,10 +79,11 @@ function add(candle, lastMoney, lastCoins, budget, calculateProfit, symbolInfo) 
 function notAdd(candle, lastResult, calculateProfit) {
     const date = formatDate(candle.date)
     const price = candle.close
+    const lowPrice = candle.low
     const money = lastResult.money
     const coins = lastResult.coins
     const avgPrice = lastResult.avgPrice
-    const fall = round(calculateProfit(price, avgPrice) * 100)
+    const fall = round(calculateProfit(lowPrice, avgPrice) * 100)
     const profit = 0
 
     return { date, price, money, coins, avgPrice, fall, profit }
